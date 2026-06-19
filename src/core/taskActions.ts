@@ -1,5 +1,5 @@
 import { Task } from '../types/task'
-import { DB } from '../database/db'
+import { DB, getTaskById } from '../database/db'
 
 const ID_CHARS = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
 
@@ -55,4 +55,39 @@ export function linkTasks(parent: Task, child: Task): { parent: Task; child: Tas
     parent: alreadyLinked ? { ...parent } : { ...parent, links: [...parent.links, child.id ?? ''] },
     child:  { ...child, parent: parent.id },
   }
+}
+
+export async function deleteTask(db: DB, id: string): Promise<void> {
+  await db.runAsync('DELETE FROM tasks WHERE id = ?', [id])
+}
+
+export function unlinkTasks(
+  parent: Task,
+  child: Task,
+): { parent: Task; child: Task } {
+  return {
+    parent: { ...parent, links: parent.links.filter(id => id !== child.id) },
+    child:  { ...child, parent: child.parent === parent.id ? null : child.parent },
+  }
+}
+
+export function updateTaskProperties(task: Task, changes: Partial<Task>): Task {
+  return { ...task, ...changes }
+}
+
+export async function getLinkedTasks(db: DB, taskId: string): Promise<Task[]> {
+  const task = await getTaskById(db, taskId)
+  if (!task) return []
+
+  const results: Task[] = []
+  const seen = new Set<string>()
+
+  for (const linkedId of task.links) {
+    if (seen.has(linkedId)) continue
+    seen.add(linkedId)
+    const linked = await getTaskById(db, linkedId)
+    if (linked) results.push(linked)
+  }
+
+  return results
 }

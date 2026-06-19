@@ -1,4 +1,4 @@
-import { createTask, changeTaskType, completeTask, cancelTask, linkTasks } from '../src/core/taskActions'
+import { createTask, changeTaskType, completeTask, cancelTask, linkTasks, deleteTask, unlinkTasks, getLinkedTasks, updateTaskProperties } from '../src/core/taskActions'
 import { Task } from '../src/types/task'
 import { DB } from '../src/database/db'
 
@@ -132,6 +132,84 @@ describe('taskActions', () => {
       linkTasks(parent, child)
       expect(parent.links).toEqual([])
       expect(child.parent).toBeNull()
+    })
+  })
+
+  describe('deleteTask', () => {
+    it('вызывает runAsync с DELETE запросом', async () => {
+      const mockDb = { runAsync: jest.fn().mockResolvedValue(undefined) } as unknown as DB
+      await deleteTask(mockDb, 'aB3cD')
+      expect(mockDb.runAsync).toHaveBeenCalledWith(
+        'DELETE FROM tasks WHERE id = ?',
+        ['aB3cD'],
+      )
+    })
+  })
+
+  describe('unlinkTasks', () => {
+    const parent: Task = { ...BASE_TASK, id: 'pPpPp', links: ['cCcCc', 'xXxXx'] }
+    const child: Task  = { ...BASE_TASK, id: 'cCcCc', parent: 'pPpPp' }
+
+    it('убирает id дочерней из links родителя', () => {
+      const { parent: p } = unlinkTasks(parent, child)
+      expect(p.links).not.toContain('cCcCc')
+      expect(p.links).toContain('xXxXx')
+    })
+
+    it('обнуляет parent у ребёнка если совпадает', () => {
+      const { child: c } = unlinkTasks(parent, child)
+      expect(c.parent).toBeNull()
+    })
+
+    it('не трогает parent у ребёнка если не совпадает', () => {
+      const childOther: Task = { ...child, parent: 'zzZZz' }
+      const { child: c } = unlinkTasks(parent, childOther)
+      expect(c.parent).toBe('zzZZz')
+    })
+
+    it('не мутирует оригинальные объекты', () => {
+      unlinkTasks(parent, child)
+      expect(parent.links).toEqual(['cCcCc', 'xXxXx'])
+      expect(child.parent).toBe('pPpPp')
+    })
+  })
+
+  describe('updateTaskProperties', () => {
+    it('меняет один параметр, остальные остаются', () => {
+      const result = updateTaskProperties(BASE_TASK, { title: 'Новый' })
+      expect(result.title).toBe('Новый')
+      expect(result.status).toBe(BASE_TASK.status)
+      expect(result.type).toBe(BASE_TASK.type)
+    })
+
+    it('не мутирует оригинальный объект', () => {
+      updateTaskProperties(BASE_TASK, { title: 'Новый' })
+      expect(BASE_TASK.title).toBe('Тест')
+    })
+
+    it('полностью заменяет массив tags если передан', () => {
+      const taskWithTags: Task = { ...BASE_TASK, tags: ['a', 'b'] }
+      const result = updateTaskProperties(taskWithTags, { tags: ['c'] })
+      expect(result.tags).toEqual(['c'])
+    })
+
+    it('пустой changes возвращает копию без изменений', () => {
+      const result = updateTaskProperties(BASE_TASK, {})
+      expect(result).toEqual(BASE_TASK)
+      expect(result).not.toBe(BASE_TASK)
+    })
+  })
+
+  describe('getLinkedTasks', () => {
+    it('возвращает пустой массив если задача не существует', async () => {
+      const mockDb = {
+        getFirstAsync: jest.fn().mockResolvedValue(null),
+        getAllAsync: jest.fn().mockResolvedValue([]),
+        runAsync: jest.fn(),
+        execAsync: jest.fn(),
+      } as unknown as DB
+      const result = await getLinkedTasks(mockDb, 'noExist')
+      expect(result).toEqual([])
     })
   })
 })
