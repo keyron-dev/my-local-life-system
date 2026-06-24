@@ -26,6 +26,7 @@ export function createTask(_db: DB, fields: Partial<Task>): Task {
     done:        null,
     remind:      [],
     tags:        [],
+    attach:      [],
     links:       [],
     from:        [],
     parent:      null,

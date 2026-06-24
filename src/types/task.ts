@@ -10,6 +10,7 @@ export interface Task {
   done: string | null
   remind: string[]
   tags: string[]
+  attach: string[]
   priority: number | null
   indentLevel: number
   parent: string | null

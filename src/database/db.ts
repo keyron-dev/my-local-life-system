@@ -1,27 +1,12 @@
 import * as SQLite from 'expo-sqlite'
 import { Task } from '../types/task'
-import {
-  CREATE_TASKS_TABLE,
-  CREATE_FILTERS_TABLE,
-  CREATE_CUSTOM_PROPS_TABLE,
-  CREATE_CONFIG_TABLE,
-  CREATE_INDEXES,
-} from './schema'
+import { runMigrations } from './migrations'
 
 export type DB = Awaited<ReturnType<typeof SQLite.openDatabaseAsync>>
 
 export async function initDatabase(): Promise<DB> {
   const db = await SQLite.openDatabaseAsync('tasks.db')
-
-  await db.execAsync(CREATE_TASKS_TABLE)
-  await db.execAsync(CREATE_FILTERS_TABLE)
-  await db.execAsync(CREATE_CUSTOM_PROPS_TABLE)
-  await db.execAsync(CREATE_CONFIG_TABLE)
-
-  for (const idx of CREATE_INDEXES) {
-    await db.execAsync(idx)
-  }
-
+  await runMigrations(db)
   return db
 }
 
@@ -111,6 +96,7 @@ function rowToTask(row: Record<string, unknown>): Task {
     done:        (row.done as string | null) ?? null,
     remind:      JSON.parse((row.remind as string) ?? '[]'),
     tags:        JSON.parse((row.tags as string) ?? '[]'),
+    attach:      [],
     links:       JSON.parse((row.links as string) ?? '[]'),
     from:        JSON.parse((row.from_tasks as string) ?? '[]'),
     parent:      (row.parent as string | null) ?? null,

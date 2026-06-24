@@ -33,6 +33,7 @@ describe('db', () => {
   beforeEach(async () => {
     jest.clearAllMocks()
     db = await initDatabase()
+    ;(db.runAsync as jest.Mock).mockClear()
   })
 
   describe('initDatabase', () => {
@@ -146,6 +147,7 @@ describe('getAllTasks / getTasksByType / getOverdueTasks', () => {
   beforeEach(async () => {
     jest.clearAllMocks()
     db = await initDatabase()
+    ;(db.runAsync as jest.Mock).mockClear()
   })
 
   describe('getAllTasks', () => {

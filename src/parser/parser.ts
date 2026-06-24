@@ -4,8 +4,10 @@ const VALID_TYPES = new Set(['inbox', 'todo', 'cal', 'Pj', 'id', 'nt', 'dg', 'sd
 
 const BUILT_IN_KEYS = new Set([
   't', 'id', 'created', 'event', 'start', 'due', 'done',
-  'remind', 'tags', 'priority', 'parent', 'links', 'from', 'repeat',
+  'remind', 'tags', 'priority', 'parent', 'links', 'from', 'repeat', 'attach',
 ])
+
+const ARRAY_KEYS = new Set(['remind', 'tags', 'links', 'from', 'attach'])
 
 function parseStatus(marker: string): Task['status'] {
   if (marker === 'x' || marker === 'X') return 'done'
@@ -80,6 +82,7 @@ function buildTask(
     done: props['done'] ?? null,
     remind: splitComma('remind'),
     tags: splitComma('tags'),
+    attach: splitComma('attach'),
     priority: props['priority'] != null ? Number(props['priority']) : null,
     parent: props['parent'] ?? null,
     links: splitComma('links'),
