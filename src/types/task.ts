@@ -1,3 +1,9 @@
+export type ParsedEvent = {
+  start: string
+  end: string | null
+  isAllDay: boolean
+}
+
 export interface Task {
   title: string
   status: 'active' | 'done' | 'cancelled' | 'in_progress'
@@ -20,4 +26,5 @@ export interface Task {
   desc: string | null
   raw: string
   customProps: Record<string, string>
+  parsedEvent: ParsedEvent | null
 }

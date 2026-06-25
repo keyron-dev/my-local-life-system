@@ -1,4 +1,4 @@
-import { Task } from '../types/task'
+import { Task, ParsedEvent } from '../types/task'
 
 const VALID_TYPES = new Set(['inbox', 'todo', 'cal', 'Pj', 'id', 'nt', 'dg', 'sdl'])
 
@@ -19,6 +19,31 @@ function parseStatus(marker: string): Task['status'] {
 function parseType(raw: string): Task['type'] {
   if (VALID_TYPES.has(raw)) return raw as Task['type']
   return 'inbox'
+}
+
+export function parseEvent(raw: string): ParsedEvent | null {
+  if (!raw) return null
+
+  if (!raw.includes('/')) {
+    return {
+      start: raw,
+      end: null,
+      isAllDay: !raw.includes('T'),
+    }
+  }
+
+  const [startPart, endPart] = raw.split('/')
+
+  const isTimeOnly = /^\d{2}:\d{2}$/.test(endPart)
+  const endFull = isTimeOnly
+    ? `${startPart.split('T')[0]}T${endPart}`
+    : endPart
+
+  return {
+    start: startPart,
+    end: endFull,
+    isAllDay: !startPart.includes('T'),
+  }
 }
 
 /** Считает уровень отступа строки. Таб = 4 пробела, шаг = 4 пробела. */
@@ -92,6 +117,7 @@ function buildTask(
     raw: line,
     indentLevel,
     customProps,
+    parsedEvent: props['event'] ? parseEvent(props['event']) : null,
   }
 }
 

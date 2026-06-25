@@ -1,4 +1,4 @@
-import { parseLine } from '../src/parser/parser'
+import { parseLine, parseEvent } from '../src/parser/parser'
 
 describe('parseLine', () => {
   describe('- [ ] Купить молоко [t::todo] [id::aB3cD] [due::2025-03-01] [tags::магазин,дом]', () => {
@@ -284,5 +284,65 @@ describe('parseLine', () => {
     it('уровень 1 — таб (таб = 4 пробела)', () => {
       expect(parseLine('\t- [ ] Вложенная через таб [t::todo]')?.indentLevel).toBe(1)
     })
+  })
+})
+
+describe('parseEvent', () => {
+  it('возвращает null для пустой строки', () => {
+    expect(parseEvent('')).toBeNull()
+  })
+
+  it('весь день — только дата', () => {
+    expect(parseEvent('2025-03-10')).toEqual({
+      start: '2025-03-10',
+      end: null,
+      isAllDay: true,
+    })
+  })
+
+  it('момент — дата и время', () => {
+    expect(parseEvent('2025-03-10T10:00')).toEqual({
+      start: '2025-03-10T10:00',
+      end: null,
+      isAllDay: false,
+    })
+  })
+
+  it('полный интервал', () => {
+    expect(parseEvent('2025-03-10T10:00/2025-03-10T18:00')).toEqual({
+      start: '2025-03-10T10:00',
+      end: '2025-03-10T18:00',
+      isAllDay: false,
+    })
+  })
+
+  it('короткая запись — тот же день', () => {
+    expect(parseEvent('2025-03-10T10:00/18:00')).toEqual({
+      start: '2025-03-10T10:00',
+      end: '2025-03-10T18:00',
+      isAllDay: false,
+    })
+  })
+
+  it('многодневное', () => {
+    expect(parseEvent('2025-03-10/2025-03-12')).toEqual({
+      start: '2025-03-10',
+      end: '2025-03-12',
+      isAllDay: true,
+    })
+  })
+
+  it('parseLine проставляет parsedEvent для задачи с event', () => {
+    const task = parseLine('- [ ] Встреча [t::cal] [event::2025-03-10T10:00/18:00]')
+    expect(task?.parsedEvent).toEqual({
+      start: '2025-03-10T10:00',
+      end: '2025-03-10T18:00',
+      isAllDay: false,
+    })
+  })
+
+  it('parseLine оставляет parsedEvent null без event', () => {
+    const task = parseLine('- [ ] Обычная задача [t::todo]')
+    expect(task?.parsedEvent).toBeNull()
   })
 })
