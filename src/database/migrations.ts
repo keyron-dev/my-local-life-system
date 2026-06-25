@@ -58,6 +58,14 @@ export const MIGRATIONS: Migration[] = [
      ON attachments(task_id)`,
     ],
   },
+  {
+    version: 4,
+    description: 'Добавить dgWho и dgWhen в tasks',
+    up: [
+      `ALTER TABLE tasks ADD COLUMN dg_who TEXT`,
+      `ALTER TABLE tasks ADD COLUMN dg_when TEXT`,
+    ],
+  },
 ]
 
 export async function runMigrations(db: DB): Promise<number> {

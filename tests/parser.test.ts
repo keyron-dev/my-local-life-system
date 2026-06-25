@@ -346,3 +346,21 @@ describe('parseEvent', () => {
     expect(task?.parsedEvent).toBeNull()
   })
 })
+
+describe('dgWho и dgWhen', () => {
+  const line = '- [ ] Позвонить клиенту [t::dg] [id::aB3cD] [dgWho::Иван] [dgWhen::2025-03-01]'
+  const task = parseLine(line)
+
+  it('dgWho = Иван', () => {
+    expect(task?.dgWho).toBe('Иван')
+  })
+
+  it('dgWhen = 2025-03-01', () => {
+    expect(task?.dgWhen).toBe('2025-03-01')
+  })
+
+  it('dgWho и dgWhen не попадают в customProps', () => {
+    expect(task?.customProps).not.toHaveProperty('dgWho')
+    expect(task?.customProps).not.toHaveProperty('dgWhen')
+  })
+})

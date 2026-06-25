@@ -25,6 +25,8 @@ export interface Task {
   repeat: string | null
   desc: string | null
   raw: string
+  dgWho: string | null
+  dgWhen: string | null
   customProps: Record<string, string>
   parsedEvent: ParsedEvent | null
 }

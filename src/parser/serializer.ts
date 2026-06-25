@@ -27,6 +27,8 @@ export function serializeTask(task: Task): string {
   if (task.attach?.length > 0)             props.push(`[attach::${task.attach.join(',')}]`)
   if (task.priority !== null)               props.push(`[priority::${task.priority}]`)
   if (task.parent)                           props.push(`[parent::${task.parent}]`)
+  if (task.dgWho)                            props.push(`[dgWho::${task.dgWho}]`)
+  if (task.dgWhen)                           props.push(`[dgWhen::${task.dgWhen}]`)
   if (task.links.length > 0)                props.push(`[links::${task.links.join(',')}]`)
   if (task.repeat)                           props.push(`[repeat::${task.repeat}]`)
 

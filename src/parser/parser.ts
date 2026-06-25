@@ -5,6 +5,7 @@ const VALID_TYPES = new Set(['inbox', 'todo', 'cal', 'Pj', 'id', 'nt', 'dg', 'sd
 const BUILT_IN_KEYS = new Set([
   't', 'id', 'created', 'event', 'start', 'due', 'done',
   'remind', 'tags', 'priority', 'parent', 'links', 'from', 'repeat', 'attach',
+  'dgWho', 'dgWhen',
 ])
 
 const ARRAY_KEYS = new Set(['remind', 'tags', 'links', 'from', 'attach'])
@@ -113,6 +114,8 @@ function buildTask(
     links: splitComma('links'),
     from: splitComma('from'),
     repeat: props['repeat'] ?? null,
+    dgWho: props['dgWho'] ?? null,
+    dgWhen: props['dgWhen'] ?? null,
     desc,
     raw: line,
     indentLevel,

@@ -56,17 +56,17 @@ describe('indexFile', () => {
   it('передаёт правильный filePath в saveTask', async () => {
     const db = makeMockDb()
     await indexFile(db, 'backlog.md', FILE_CONTENT)
-    // filePath — 21-й параметр (index 20) в runAsync
+    // filePath — 23-й параметр (index 22) в runAsync
     for (const call of db.runAsync.mock.calls) {
-      expect(call[1][20]).toBe('backlog.md')
+      expect(call[1][22]).toBe('backlog.md')
     }
   })
 
   it('передаёт корректный lineNum (0-based) для каждой задачи', async () => {
     const db = makeMockDb()
     await indexFile(db, 'backlog.md', FILE_CONTENT)
-    // lineNum — 22-й параметр (index 21)
-    const lineNums = db.runAsync.mock.calls.map((c: any) => c[1][21])
+    // lineNum — 24-й параметр (index 23)
+    const lineNums = db.runAsync.mock.calls.map((c: any) => c[1][23])
     expect(lineNums).toContain(0)
     expect(lineNums).toContain(1)
     expect(lineNums).toContain(2)

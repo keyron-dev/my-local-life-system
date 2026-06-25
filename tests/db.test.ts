@@ -21,10 +21,14 @@ const SAMPLE_TASK: Task = {
   links:       [],
   from:        [],
   parent:      null,
+  dgWho:       null,
+  dgWhen:      null,
   repeat:      null,
   desc:        'Описание задачи',
   raw:         '- [ ] Тестовая задача [t::todo] [id::aB3cD]',
+  attach:      [],
   customProps: { energy: 'high' },
+  parsedEvent: null,
 }
 
 describe('db', () => {
@@ -86,15 +90,15 @@ describe('db', () => {
     it('сериализует customProps как JSON строку', async () => {
       await saveTask(db, SAMPLE_TASK, 'backlog.md', 5)
       const [, params] = (db.runAsync as jest.Mock).mock.calls[0]
-      // custom_props — 19-й параметр (index 18)
-      expect(params[18]).toBe(JSON.stringify({ energy: 'high' }))
+      // custom_props — 21-й параметр (index 20)
+      expect(params[20]).toBe(JSON.stringify({ energy: 'high' }))
     })
 
     it('передаёт filePath и lineNum', async () => {
       await saveTask(db, SAMPLE_TASK, 'backlog.md', 42)
       const [, params] = (db.runAsync as jest.Mock).mock.calls[0]
-      expect(params[20]).toBe('backlog.md')
-      expect(params[21]).toBe(42)
+      expect(params[22]).toBe('backlog.md')
+      expect(params[23]).toBe(42)
     })
 
     it('SQL содержит ON CONFLICT(id) DO UPDATE (upsert)', async () => {

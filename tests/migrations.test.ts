@@ -26,7 +26,7 @@ describe('runMigrations', () => {
   it('возвращает финальную версию схемы', async () => {
     const db = makeDb(null)
     const version = await runMigrations(db)
-    expect(version).toBe(3)
+    expect(version).toBe(4)
   })
 
   it('не применяет уже применённую миграцию повторно', async () => {
@@ -42,14 +42,14 @@ describe('runMigrations', () => {
   })
 
   it('возвращает текущую версию если миграций нет', async () => {
-    const db = makeDb('3')
+    const db = makeDb('4')
     const version = await runMigrations(db)
-    expect(version).toBe(3)
+    expect(version).toBe(4)
   })
 
-  it('финальная версия схемы равна 3 после всех миграций', async () => {
+  it('финальная версия схемы равна 4 после всех миграций', async () => {
     const db = makeDb(null)
     const version = await runMigrations(db)
-    expect(version).toBe(3)
+    expect(version).toBe(4)
   })
 })

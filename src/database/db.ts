@@ -21,13 +21,13 @@ export async function saveTask(
       id, title, status, type, priority, indent_level,
       created, event, start, due, done,
       remind, tags, links, from_tasks,
-      parent, repeat, desc, custom_props,
+      parent, dg_who, dg_when, repeat, desc, custom_props,
       raw, file_path, line_num, updated_at
     ) VALUES (
       ?, ?, ?, ?, ?, ?,
       ?, ?, ?, ?, ?,
       ?, ?, ?, ?,
-      ?, ?, ?, ?,
+      ?, ?, ?, ?, ?,
       ?, ?, ?, ?
     )
     ON CONFLICT(id) DO UPDATE SET
@@ -46,6 +46,8 @@ export async function saveTask(
       links        = excluded.links,
       from_tasks   = excluded.from_tasks,
       parent       = excluded.parent,
+      dg_who       = excluded.dg_who,
+      dg_when      = excluded.dg_when,
       repeat       = excluded.repeat,
       desc         = excluded.desc,
       custom_props = excluded.custom_props,
@@ -70,6 +72,8 @@ export async function saveTask(
       JSON.stringify(task.links),
       JSON.stringify(task.from),
       task.parent,
+      task.dgWho,
+      task.dgWhen,
       task.repeat,
       task.desc,
       JSON.stringify(task.customProps),
@@ -100,10 +104,13 @@ function rowToTask(row: Record<string, unknown>): Task {
     links:       JSON.parse((row.links as string) ?? '[]'),
     from:        JSON.parse((row.from_tasks as string) ?? '[]'),
     parent:      (row.parent as string | null) ?? null,
+    dgWho:       (row.dg_who as string | null) ?? null,
+    dgWhen:      (row.dg_when as string | null) ?? null,
     repeat:      (row.repeat as string | null) ?? null,
     desc:        (row.desc as string | null) ?? null,
-    customProps: JSON.parse((row.custom_props as string) ?? '{}'),
-    raw:         row.raw as string,
+    customProps:  JSON.parse((row.custom_props as string) ?? '{}'),
+    parsedEvent:  null,
+    raw:          row.raw as string,
   }
 }
 
